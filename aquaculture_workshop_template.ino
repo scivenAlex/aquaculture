@@ -3,8 +3,10 @@
 
 /*First we have to make sure our physical system matches our code. Set the
 following variables to be whatever pin you're plugged into. On the board, it
-will be called D-something. For example, the code below says the TDS sensor
-is plugged into D4, and the temperature sensor is in D22.*/
+will be called just a number for digital pins, and A-something for analogue 
+pins. For example, the code below says the TDS sensor is plugged into A0, and
+the temperature sensor and buzzer are in 0. These pins aren't correct. Make them
+match your board.*/
 
 //YOUR NUMBERS HERE
 #define tdsSensorPin 0
@@ -13,8 +15,8 @@ is plugged into D4, and the temperature sensor is in D22.*/
 
 /* VREF is the analog reference voltage of the analog-digital converter. This
 is the value that the device uses for comparision when trying to create a scale.
-For a lot of microcontrollers, this value is 3.3V. An ESP32 uses a reference
-voltage of 1.1V.*/
+For a lot of microcontrollers, this value is 3.3V or 5V. An Arduino Uno uses either,
+but we will use a reference voltage of 5V.*/
 #define VREF 5 //analog reference voltage of the ADC
 #define buffer_size 30 //the size of our arrays
 
@@ -25,9 +27,13 @@ DallasTemperature sensors(&oneWire);
 
 /*Any code that we want to run only when the code starts needs to be in the 
 setup function. For us, this is where we do the following:
-1. Start the output with Serial.begin(channel)
-2. Tell each pin whether it is input or output (Input is listening for something, output is saying something).
-   Uses pinMode() to set INPUT or OUTPUT for the TDS sensor and the buzzer.
+1. Start the output with Serial.begin(channel). If you click the magnifying glass
+    button in the top corner, you will see what channel you are on. Your choice
+    doesn't matter, but make sure they match.
+2. Tell each pin whether it is input or output (Input is listening for something, 
+    output is saying something). Use the command pinMode(sensor, INPUT/OUTPUT) to
+    set INPUT or OUTPUT for the TDS sensor and the buzzer. You don't have to for the
+    temperature sensor, but you can.
 3. Start the DallasTemperature sensors with sensors.begin()
 */
 void setup() {
@@ -46,21 +52,26 @@ void loop(){
     using the formula (temp_c x 1.8) + 32 = temp_f)
 
     sensors.requestTemperatures() is a sensor function to get the sensors to send data
-    to the Arduino. sensors.getTempCByIndex(index) is a function to return the temperature.
+    to the Arduino.*/
+    
+    sensors.requestTemperatures();
+    
+    /*sensors.getTempCByIndex(index) is a function to return the temperature.
     The index tells us which sensor we are getting data from. Since we only have one, it's
     index is 0.*/
+    
+    float temperature = 0; //YOUR CODE HERE. Use the getTempCByIndex function.
 
-    sensors.requestTemperatures();
-    float temperature = 0; //YOUR CODE HERE
-
+    /*We can use some print statements to test our progress.*/
     Serial.print("Temperature=");
     Serial.println(temperature);
 
     /*Next we have to stop using libraries and deal with our TDS sensor by ourselves.
     analogRead(pin) is a function to read analog data from a pin on the Arduino. You defined
-    the pin on line 10. Then we have to convert the number to a readable voltage.*/
+    the pin on line 10. Then we have to convert the number to a readable voltage. This is done
+    for you.*/
 
-    float value = 0; //YOUR CODE HERE
+    float value = 0; //YOUR CODE HERE. Use the analogRead function.
     float voltage =  value * ((float)VREF / 1024.0);
 
     /*When we talk about dissolved solids, we use something called standard ambient
@@ -74,11 +85,15 @@ void loop(){
 
     Good thing we know the temperature of the water!*/
 
-    float compensationCoefficient = 0; //YOUR CODE HERE: temperature compensation formula
+    float compensationCoefficient = 0; //YOUR CODE HERE. Use the temperature compensation formula
     float compensationVoltage = voltage / compensationCoefficient; //temperature compensation
 
     /*The conversion is a quadrinomial equation. Why? Good question! In an ideal world it would
-    be linear, but because resistance and current interactions, it needs to be approximated. */
+    be linear, but because resistance and current interactions, it needs to be approximated.
+    
+    tdsValue = (v3 - v2 + v1)/2 where v1, v2, and v3 are defined below.
+    
+     */
     float v3 = 133.42 * compensationVoltage * compensationVoltage * compensationVoltage;
     float v2 = 255.86 * compensationVoltage * compensationVoltage;
     float v1 = 857.39 * compensationVoltage;
@@ -98,10 +113,10 @@ void loop(){
     digitalWrite() to write a pin (our buzzer) to be high (on) or low (off) when we want
     it to be.*/
 
-    if(tdsValue > 0){
-
+    if(tdsValue > 0){ //YOUR CODE HERE. Chose a threshold value
+      //YOUR CODE HERE. Use digitalWrite function
     }else{
-
+      //YOUR CODE HERE. Use digitalWrite function
     }
 }
 
